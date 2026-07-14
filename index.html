@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JOB HUNT ｜ 誰と働くかで選ぶ、就活イベント</title>
+<meta name="description" content="会社の知名度や規模だけで選びたくない。「誰と働くか」「どんな空気感か」を肌で感じる、フェスのように熱量の高い就活イベント JOB HUNT。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-base:#f9f9f7;
+    --text-main:#333333;
+    --accent:#d32f2f;
+    --accent-dark:#b71c1c;
+    --cta-bg:#0b1326;
+    --cta-bg-2:#111d38;
+    --white:#ffffff;
+    --card-border:#eaeae6;
+    --muted:#777777;
+    --ink:#1a1a1a;
+  }
+
+  *,*::before,*::after{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    margin:0;
+    font-family:"Noto Sans JP","Hiragino Sans","Yu Gothic",sans-serif;
+    color:var(--text-main);
+    background:var(--bg-base);
+    line-height:1.8;
+    -webkit-font-smoothing:antialiased;
+  }
+  img{ max-width:100%; display:block; }
+  a{ color:inherit; text-decoration:none; }
+  section{ padding:96px 0; }
+  .wrap{
+    max-width:1080px;
+    margin:0 auto;
+    padding:0 24px;
+  }
+  .eyebrow{
+    display:inline-block;
+    background:#fdecea;
+    color:var(--accent);
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:.08em;
+    padding:6px 18px;
+    border-radius:999px;
+    margin-bottom:20px;
+  }
+  .section-head{ text-align:center; margin-bottom:64px; }
+  .section-head .en{
+    font-size:clamp(30px,5vw,44px);
+    font-weight:900;
+    letter-spacing:.02em;
+    color:var(--ink);
+    margin:0 0 12px;
+  }
+  .section-head .sub{
+    font-size:16px;
+    color:var(--muted);
+    margin:0;
+    font-weight:500;
+  }
+
+  /* ---------- Buttons ---------- */
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:var(--accent);
+    color:#fff;
+    font-weight:700;
+    font-size:15px;
+    padding:14px 30px;
+    border-radius:999px;
+    border:none;
+    cursor:pointer;
+    box-shadow:0 4px 0 var(--accent-dark);
+    transition:transform .15s ease, box-shadow .15s ease;
+    white-space:nowrap;
+  }
+  .btn:hover{
+    transform:translateY(-3px);
+    box-shadow:0 7px 0 var(--accent-dark);
+  }
+  .btn:active{
+    transform:translateY(2px);
+    box-shadow:0 2px 0 var(--accent-dark);
+  }
+  .btn-header{ font-size:14px; padding:11px 22px; }
+  .btn-hero{ font-size:16px; padding:16px 38px; }
+  .btn-green{
+    background:#0fbf5f;
+    box-shadow:0 4px 0 #0a8f46;
+    width:100%;
+    justify-content:center;
+    font-size:17px;
+    padding:18px 24px;
+  }
+  .btn-green:hover{ box-shadow:0 7px 0 #0a8f46; }
+  .btn-green:active{ box-shadow:0 2px 0 #0a8f46; }
+
+  /* ---------- Header ---------- */
+  header.site{
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:rgba(255,255,255,.92);
+    backdrop-filter:blur(6px);
+    border-bottom:1px solid rgba(0,0,0,.06);
+    box-shadow:0 2px 8px rgba(0,0,0,.04);
+  }
+  .header-inner{
+    max-width:1080px;
+    margin:0 auto;
+    padding:16px 24px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .logo{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-weight:900;
+    font-size:22px;
+    letter-spacing:.02em;
+  }
+  .logo .flag{
+    font-size:22px;
+    line-height:1;
+  }
+  .logo .job{ color:var(--ink); }
+  .logo .hunt{ color:var(--accent); }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    background:
+      radial-gradient(circle at 85% 10%, rgba(211,47,47,.06), transparent 45%),
+      var(--bg-base);
+    padding:88px 0 100px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .hero-badge{
+    position:absolute;
+    top:56px;
+    right:8%;
+    width:96px;
+    height:96px;
+    border-radius:50%;
+    background:var(--accent);
+    color:#fff;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    font-weight:700;
+    font-size:12px;
+    line-height:1.4;
+    transform:rotate(12deg);
+    box-shadow:0 6px 18px rgba(211,47,47,.35);
+  }
+  .hero h1{
+    font-size:clamp(30px,5.2vw,54px);
+    font-weight:900;
+    line-height:1.35;
+    color:var(--ink);
+    margin:0 0 28px;
+  }
+  .hero h1 .hl{ color:var(--accent); }
+  .hero p.lead{
+    max-width:620px;
+    margin:0 auto 40px;
+    font-size:16px;
+    color:var(--muted);
+  }
+
+  /* feature cards under hero */
+  .feature-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:24px;
+    margin-top:56px;
+    text-align:left;
+  }
+  .feature-card{
+    background:var(--white);
+    border:1px solid var(--card-border);
+    border-radius:16px;
+    padding:32px 28px;
+    position:relative;
+    overflow:hidden;
+    box-shadow:0 4px 16px rgba(0,0,0,.03);
+  }
+  .feature-card::after{
+    content:"";
+    position:absolute;
+    top:-40px; right:-40px;
+    width:120px; height:120px;
+    background:rgba(211,47,47,.06);
+    border-radius:50%;
+  }
+  .feature-icon{
+    width:56px; height:56px;
+    background:#ffd54a;
+    border-radius:12px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:26px;
+    margin-bottom:20px;
+    position:relative;
+    z-index:1;
+  }
+  .feature-card h3{
+    font-size:18px;
+    margin:0 0 12px;
+    position:relative; z-index:1;
+  }
+  .feature-card p{
+    font-size:14.5px;
+    color:var(--text-main);
+    margin:0;
+    position:relative; z-index:1;
+  }
+
+  /* ---------- Concept ---------- */
+  .concept{ background:var(--white); }
+  .concept-inner{ max-width:760px; margin:0 auto; text-align:center; }
+  .concept h2{
+    font-size:clamp(22px,3.4vw,30px);
+    font-weight:700;
+    line-height:1.7;
+    color:var(--ink);
+    margin:0 0 20px;
+  }
+  .concept h2 strong{ color:var(--accent); }
+  .concept p{ color:var(--muted); font-size:15.5px; margin:0 0 48px; }
+
+  .concept-points{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:32px;
+  }
+  .concept-point .num{
+    font-weight:900;
+    font-size:13px;
+    color:var(--accent);
+    letter-spacing:.1em;
+    margin-bottom:8px;
+    display:block;
+  }
+  .concept-point h4{ font-size:16px; margin:0 0 8px; }
+  .concept-point p{ font-size:14px; color:var(--muted); margin:0; }
+
+  /* ---------- Event Flow ---------- */
+  .flow{ background:linear-gradient(180deg,#fbeef0,#fdf7f5); }
+  .timeline{
+    position:relative;
+    margin-top:24px;
+  }
+  .timeline::before{
+    content:"";
+    position:absolute;
+    left:50%;
+    top:0; bottom:0;
+    width:4px;
+    background:#1a1a1a;
+    transform:translateX(-50%);
+  }
+  .t-row{
+    display:grid;
+    grid-template-columns:1fr auto 1fr;
+    align-items:center;
+    gap:24px;
+    margin-bottom:8px;
+    min-height:130px;
+  }
+  .t-row:nth-child(even) .t-card{ grid-column:3; }
+  .t-row:nth-child(even) .t-time{ grid-column:1; justify-self:end; }
+  .t-row:nth-child(odd) .t-card{ grid-column:1; }
+  .t-row:nth-child(odd) .t-time{ grid-column:3; justify-self:start; }
+
+  .t-time{
+    background:#ffd54a;
+    border:2px solid var(--ink);
+    border-radius:10px;
+    padding:10px 18px;
+    font-weight:900;
+    font-size:17px;
+    color:var(--ink);
+  }
+  .t-dot{
+    grid-column:2;
+    width:52px;height:52px;
+    background:var(--accent);
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;
+    font-size:20px;
+    z-index:2;
+    box-shadow:0 0 0 6px var(--bg-base);
+  }
+  .t-card{
+    background:var(--white);
+    border:2px solid var(--ink);
+    border-radius:14px;
+    padding:22px 26px;
+    position:relative;
+    max-width:420px;
+  }
+  .t-card .badge{
+    position:absolute;
+    top:-14px; right:-14px;
+    width:32px;height:32px;
+    background:#26c6da;
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:900;
+    font-size:14px;
+    color:#fff;
+    box-shadow:0 2px 6px rgba(0,0,0,.15);
+  }
+  .t-card h3{ font-size:18px; margin:0 0 8px; }
+  .t-card p{ font-size:14px; margin:0; color:var(--text-main); }
+
+  /* ---------- Real Voice ---------- */
+  .voice{ background:var(--bg-base); }
+  .voice-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:24px;
+  }
+  .voice-card{
+    background:#fdf9ee;
+    border:1px solid var(--card-border);
+    border-radius:16px;
+    padding:30px 26px;
+    box-shadow:0 6px 20px rgba(0,0,0,.05);
+  }
+  .voice-card .quote{
+    font-size:28px;
+    color:var(--accent);
+    font-weight:900;
+    line-height:1;
+    margin-bottom:12px;
+  }
+  .voice-card p.comment{
+    font-size:14.5px;
+    color:var(--text-main);
+    margin:0 0 20px;
+  }
+  .voice-person{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding-top:16px;
+    border-top:1px dashed var(--card-border);
+  }
+  .voice-person img{
+    width:48px;height:48px;
+    border-radius:50%;
+    object-fit:cover;
+    border:1px solid var(--card-border);
+  }
+  .voice-person span{ font-size:14px; font-weight:700; }
+
+  /* ---------- CTA / Final Call ---------- */
+  .cta{
+    background:linear-gradient(180deg,var(--cta-bg),var(--cta-bg-2));
+    color:#fff;
+    text-align:center;
+  }
+  .cta .eyebrow{
+    background:#ffd54a;
+    color:#1a1a1a;
+  }
+  .cta h2{
+    font-size:clamp(28px,5vw,46px);
+    font-weight:900;
+    line-height:1.4;
+    margin:0 0 24px;
+  }
+  .cta h2 .hl{ color:#ffd54a; }
+  .cta p.lead{
+    color:rgba(255,255,255,.75);
+    font-size:15px;
+    margin:0 0 48px;
+  }
+  .cta-box{
+    background:#fff;
+    color:var(--text-main);
+    max-width:480px;
+    margin:0 auto;
+    padding:36px 32px 32px;
+    border-radius:20px;
+    box-shadow:0 20px 50px rgba(0,0,0,.35);
+  }
+  .cta-box h3{
+    font-size:20px;
+    color:var(--accent);
+    font-weight:900;
+    margin:0 0 20px;
+  }
+  .cta-box ul{
+    list-style:none;
+    padding:0; margin:0 0 26px;
+    text-align:left;
+    display:inline-block;
+  }
+  .cta-box li{
+    font-size:14.5px;
+    margin-bottom:10px;
+    display:flex;
+    gap:8px;
+  }
+  .cta-box li::before{
+    content:"✓";
+    color:var(--accent);
+    font-weight:900;
+  }
+
+  /* ---------- Footer ---------- */
+  footer.site{
+    background:#08101f;
+    color:rgba(255,255,255,.55);
+    text-align:center;
+    padding:32px 24px;
+    font-size:13px;
+  }
+
+  /* ---------- Reveal animation ---------- */
+  @media (prefers-reduced-motion: no-preference){
+    .reveal{
+      opacity:0;
+      transform:translateY(16px);
+      transition:opacity .6s ease, transform .6s ease;
+    }
+    .reveal.is-visible{
+      opacity:1;
+      transform:translateY(0);
+    }
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:768px){
+    section{ padding:64px 0; }
+    .header-inner{ padding:14px 20px; }
+    .logo{ font-size:18px; }
+    .btn-header{ font-size:13px; padding:9px 16px; }
+
+    .hero{ padding:56px 0 72px; }
+    .hero-badge{ width:76px;height:76px; font-size:10px; top:24px; right:6%; }
+    .feature-grid{ grid-template-columns:1fr; }
+
+    .concept-points{ grid-template-columns:1fr; text-align:left; }
+
+    .timeline::before{ left:24px; }
+    .t-row{
+      grid-template-columns:1fr;
+      padding-left:56px;
+      position:relative;
+      min-height:auto;
+      margin-bottom:28px;
+    }
+    .t-row:nth-child(even) .t-card,
+    .t-row:nth-child(odd) .t-card{ grid-column:1; max-width:100%; }
+    .t-row:nth-child(even) .t-time,
+    .t-row:nth-child(odd) .t-time{
+      grid-column:1;
+      justify-self:start;
+      margin-bottom:12px;
+      display:inline-block;
+    }
+    .t-dot{
+      position:absolute;
+      left:0; top:0;
+      grid-column:auto;
+      width:44px;height:44px;
+      font-size:16px;
+    }
+
+    .voice-grid{ grid-template-columns:1fr; }
+    .cta-box{ padding:28px 22px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ① HEADER -->
+<header class="site">
+  <div class="header-inner">
+    <div class="logo"><span class="flag">🚩</span><span class="job">JOB</span>&nbsp;<span class="hunt">HUNT</span></div>
+    <a class="btn btn-header" href="https://forms.gle/4QCdbr3ucUkjWc278" target="_blank" rel="noopener">応募はこちらから</a>
+  </div>
+</header>
+
+<!-- ② HERO -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-badge">会場の熱気を<br>体感せよ！</div>
+    <span class="eyebrow">28卒向け 就活イベント</span>
+    <h1>会社の"大きさ"じゃなく、<br><span class="hl">「誰と働くか」</span>で選ぶ。</h1>
+    <p class="lead">会社の知名度や規模だけで選びたくない。「誰と働くか」「どんな空気感か」を肌で感じる、フェスのように熱量の高い就活イベントへようこそ。</p>
+    <a class="btn btn-hero" href="https://forms.gle/4QCdbr3ucUkjWc278" target="_blank" rel="noopener">応募はこちらから</a>
+
+    <div class="feature-grid">
+      <div class="feature-card reveal">
+        <div class="feature-icon">👥</div>
+        <h3>社長・役員と直接話せる</h3>
+        <p>人事担当者だけでなく、決済権を持つトップと直接会話ができます。会社のビジョンや熱量を肌で感じてください。</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">💬</div>
+        <h3>NGなしのフリートーク</h3>
+        <p>「残業は？」「離職率は？」など、説明会では聞きにくいこともOK。本音で語り合うからこそ、ミスマッチがなくなります。</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon">👕</div>
+        <h3>私服参加＆履歴書不要</h3>
+        <p>リクルートスーツという「鎧」を脱いで、あなたらしく参加してください。準備はいりません、必要なのは好奇心だけ。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ③ CONCEPT -->
+<section class="concept">
+  <div class="wrap concept-inner">
+    <h2>会社の知名度や規模だけで選びたくない。<br>大切なのは<strong>「誰と働くか」「どんな空気感か」</strong>。</h2>
+    <p>説明会のような一方通行ではなく、対話から生まれる納得感を大事にしたい。JOB HUNTは、そんな想いから生まれた就活イベントです。</p>
+    <div class="concept-points">
+      <div class="concept-point reveal">
+        <span class="num">01</span>
+        <h4>カジュアルな空気感</h4>
+        <p>スーツも堅苦しい挨拶も不要。素の自分で企業と向き合えます。</p>
+      </div>
+      <div class="concept-point reveal">
+        <span class="num">02</span>
+        <h4>人事と直接つながる</h4>
+        <p>その場で連絡先交換や次回選考の相談まで進められます。</p>
+      </div>
+      <div class="concept-point reveal">
+        <span class="num">03</span>
+        <h4>途中参加・退出OK</h4>
+        <p>自分のペースで、気になるところだけつまみ食いも自由。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ④ EVENT FLOW -->
+<section class="flow" id="flow">
+  <div class="wrap">
+    <div class="section-head">
+      <p class="en">EVENT FLOW</p>
+      <p class="sub">途中参加・退出OK！自由なスタイルで楽しもう</p>
+    </div>
+
+    <div class="timeline">
+      <div class="t-row">
+        <div class="t-card reveal"><span class="badge">1</span><h3>受付開始</h3><p>会場に到着後に受付を行っていただきます。</p></div>
+        <div class="t-dot">🚪</div>
+        <div class="t-time">12:30</div>
+      </div>
+      <div class="t-row">
+        <div class="t-card reveal"><span class="badge">2</span><h3>オープニング</h3><p>イベントの楽しみ方や、本日の参加企業について簡単にご紹介します。</p></div>
+        <div class="t-dot">🎤</div>
+        <div class="t-time">13:00</div>
+      </div>
+      <div class="t-row">
+        <div class="t-card reveal"><span class="badge">3</span><h3>企業プレゼン</h3><p>スライド資料やパンフレット、PR動画などでプレゼンしていただきます。</p></div>
+        <div class="t-dot">⚡</div>
+        <div class="t-time">13:15</div>
+      </div>
+      <div class="t-row">
+        <div class="t-card reveal"><span class="badge">4</span><h3>グループワーク</h3><p>グループディスカッションを行います。少人数のため、個別にフィードバックをもらうこともできます。</p></div>
+        <div class="t-dot">👥</div>
+        <div class="t-time">13:45</div>
+      </div>
+      <div class="t-row">
+        <div class="t-card reveal"><span class="badge">5</span><h3>個別面談＆座談会</h3><p>人事責任者や社長と連絡先交換や次回選考日程調整が可能です。働き方やキャリアの話まで聞けます。</p></div>
+        <div class="t-dot">☕</div>
+        <div class="t-time">16:30</div>
+      </div>
+      <div class="t-row">
+        <div class="t-card reveal"><span class="badge">6</span><h3>人事×学生交流会</h3><p>イベント中に聞けなかった話を直接聞き、互いの理解を深められます。学生同士の交流も！</p></div>
+        <div class="t-dot">🚶</div>
+        <div class="t-time">17:00</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ⑤ REAL VOICE -->
+<section class="voice">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">REAL VOICE</span>
+      <p class="en">参加者の声</p>
+      <p class="sub">実際に参加した学生のリアルな感想</p>
+    </div>
+
+    <div class="voice-grid">
+      <div class="voice-card reveal">
+        <div class="quote">"</div>
+        <p class="comment">初めての就活イベントで緊張しましたが、カジュアルな雰囲気で企業の方と話せました！大規模な合説とは全然違って、本当に「対話」ができる感覚でした。</p>
+        <div class="voice-person">
+          <img src="https://1.bp.blogspot.com/-_CV8N79Vf84/XubM37F8bYI/AAAAAAABZis/7vV0Uis7Iic796f6N2wre6unNctqO8S9gCNcBGAsYHQ/s400/youskai_kappa.png" alt="参加者アイコン">
+          <span>Tさん（早稲田大学 経済学部 3年）</span>
+        </div>
+      </div>
+      <div class="voice-card reveal">
+        <div class="quote">"</div>
+        <p class="comment">グループディスカッションの練習ができて、本番に自信を持って臨めました。フィードバックも丁寧で、自分の強み・弱みがよく分かりました。</p>
+        <div class="voice-person">
+          <img src="https://1.bp.blogspot.com/-_CV8N79Vf84/XubM37F8bYI/AAAAAAABZis/7vV0Uis7Iic796f6N2wre6unNctqO8S9gCNcBGAsYHQ/s400/youskai_kappa.png" alt="参加者アイコン">
+          <span>Sさん（慶應義塾大学 商学部 4年）</span>
+        </div>
+      </div>
+      <div class="voice-card reveal">
+        <div class="quote">"</div>
+        <p class="comment">エンジニア志望の自分にぴったりのイベントでした。CTOの方と直接技術の話ができて、内定にも繋がりました！参加して本当に良かったです。</p>
+        <div class="voice-person">
+          <img src="https://1.bp.blogspot.com/-_CV8N79Vf84/XubM37F8bYI/AAAAAAABZis/7vV0Uis7Iic796f6N2wre6unNctqO8S9gCNcBGAsYHQ/s400/youskai_kappa.png" alt="参加者アイコン">
+          <span>Yさん（東京大学 工学部 3年）</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ⑥ CTA / FINAL CALL -->
+<section class="cta">
+  <div class="wrap">
+    <span class="eyebrow">FINAL CALL</span>
+    <h2>あなたの働くが<br><span class="hl">ここから変わる</span></h2>
+    <p class="lead">定員になり次第締め切りとなります。準備は不要。必要なのは好奇心だけ。</p>
+
+    <div class="cta-box">
+      <h3>優先エントリー受付中</h3>
+      <ul>
+        <li>氏名入力不要！30秒で完結</li>
+        <li>限定求人や選考リストが届く</li>
+      </ul>
+      <a class="btn btn-green" href="https://forms.gle/4QCdbr3ucUkjWc278" target="_blank" rel="noopener">応募はこちらから →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ⑦ FOOTER -->
+<footer class="site">
+  © The Job Hunt
+</footer>
+
+<script>
+  // Scroll reveal (progressive enhancement; page works fully without it)
+  if ('IntersectionObserver' in window){
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){
+          e.target.classList.add('is-visible');
+          io.unobserve(e.target);
+        }
+      });
+    },{threshold:0.15});
+    document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+  } else {
+    document.querySelectorAll('.reveal').forEach(el=>el.classList.add('is-visible'));
+  }
+</script>
+
+</body>
+</html>
