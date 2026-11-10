@@ -1,0 +1,8 @@
+{
+  "name": "jobhunt-promo-video",
+  "private": true,
+  "description": "JOB HUNT promo video sources (HTML animation rendered frame-by-frame with Playwright)",
+  "dependencies": {
+    "@fontsource/noto-sans-jp": "5.1.1"
+  }
+}

@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>JOB HUNT promo</title>
+<link rel="stylesheet" href="node_modules/@fontsource/noto-sans-jp/500.css">
+<link rel="stylesheet" href="node_modules/@fontsource/noto-sans-jp/700.css">
+<link rel="stylesheet" href="node_modules/@fontsource/noto-sans-jp/900.css">
+<style>
+/*
+  Timeline-driven motion graphics.
+  Every animation is a CSS animation whose delay is the ABSOLUTE time (s) on the
+  video timeline. window.seek(t) pauses all animations and sets currentTime = t,
+  so each frame is rendered deterministically (see render.js).
+  data-a     : animation shorthand list (";"-separated). $o/$b/$i/$io/$s = easing aliases.
+  data-split : "<anim> <dur> <start> <step> [ease]" -> per-character stagger.
+  data-start / data-end : visibility window on the timeline.
+*/
+:root{
+  --red:#d32f2f; --red2:#ff4a4a; --yellow:#ffd54a; --navy:#0b1326; --navy2:#111d38;
+  --ink:#1a1a1a; --bg:#f9f9f7; --cream:#fdf9ee; --cyan:#26c6da; --green:#0fbf5f; --muted:#6b6b6b;
+  --dot:11vmin; --timeH:9vmin;
+}
+*{ box-sizing:border-box; margin:0; padding:0; }
+html,body{ width:100vw; height:100vh; overflow:hidden; background:#000; }
+body{
+  font-family:"Noto Sans JP","Noto Color Emoji",sans-serif;
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  font-feature-settings:"palt";
+}
+.scene{ position:absolute; inset:0; overflow:hidden; }
+.ch{ display:inline-block; white-space:pre; }
+.emoji{ font-family:"Noto Color Emoji",sans-serif; }
+
+/* ---------- keyframes ---------- */
+@keyframes fadeIn{ from{opacity:0} to{opacity:1} }
+@keyframes up{ from{opacity:0; transform:translateY(5vmin)} to{opacity:1; transform:none} }
+@keyframes pop{ 0%{opacity:0; transform:scale(0)} 60%{opacity:1; transform:scale(1.12)} 100%{opacity:1; transform:scale(1)} }
+@keyframes punch{ 0%{opacity:0; transform:scale(2.4) rotate(-4deg)} 55%{opacity:1; transform:scale(.94) rotate(0)} 100%{opacity:1; transform:scale(1)} }
+@keyframes drop{ 0%{opacity:0; transform:translateY(-50vh) rotate(-20deg)} 60%{opacity:1; transform:translateY(2vh) rotate(6deg)} 80%{transform:translateY(-1vh) rotate(-3deg)} 100%{opacity:1; transform:none} }
+@keyframes slideL{ from{opacity:0; transform:translateX(25vmin)} to{opacity:1; transform:none} }
+@keyframes slideR{ from{opacity:0; transform:translateX(-25vmin)} to{opacity:1; transform:none} }
+@keyframes slideUp{ from{opacity:0; transform:translateY(20vmin)} to{opacity:1; transform:none} }
+@keyframes outL{ to{opacity:0; transform:translateX(-30vmin)} }
+@keyframes grow{ from{transform:var(--g0, scaleX(0))} to{transform:none} }
+@keyframes spin{ from{transform:translate(-50%,-50%) rotate(0)} to{transform:translate(-50%,-50%) rotate(360deg)} }
+@keyframes circleIn{ from{clip-path:circle(0% at 50% 50%)} to{clip-path:circle(80% at 50% 50%)} }
+@keyframes swipeIn{ from{transform:translateX(135vw) skewX(-14deg)} to{transform:translateX(0) skewX(-14deg)} }
+@keyframes swipeOut{ from{transform:translateX(0) skewX(-14deg)} to{transform:translateX(-160vw) skewX(-14deg)} }
+@keyframes fall{ from{transform:translate3d(0,-15vh,0) rotate(0) rotateX(0)} to{transform:translate3d(var(--dx),115vh,0) rotate(var(--rot)) rotateX(var(--flip))} }
+@keyframes wobble{ from{transform:rotate(-6deg)} to{transform:rotate(6deg)} }
+@keyframes pulse{ from{transform:scale(1)} to{transform:scale(1.06)} }
+@keyframes floaty{ from{transform:translateY(-1.2vmin)} to{transform:translateY(1.2vmin)} }
+@keyframes zoomSlow{ from{transform:scale(1)} to{transform:scale(1.08)} }
+
+/* ---------- shared ---------- */
+.rays{
+  position:absolute; left:50%; top:50%; width:260vmax; height:260vmax; border-radius:50%;
+  background:repeating-conic-gradient(from 0deg, rgba(255,255,255,.05) 0deg 7.5deg, transparent 7.5deg 15deg);
+  -webkit-mask:radial-gradient(circle, #000 0%, transparent 55%);
+          mask:radial-gradient(circle, #000 0%, transparent 55%);
+  transform:translate(-50%,-50%);
+}
+.confetti{ position:absolute; inset:0; pointer-events:none; z-index:0; }
+.open-center,.cta-wrap,.cta-logo{ z-index:2; }
+.confetti i{ position:absolute; top:0; display:block; border-radius:.3vmin; }
+.pill{ display:inline-block; font-weight:900; font-size:4vmin; padding:1.1vmin 4vmin; border-radius:99px; letter-spacing:.06em; }
+.pill.y{ background:var(--yellow); color:var(--ink); }
+.pill.r{ background:#fdecea; color:var(--red); }
+.job{ color:var(--ink); } .hunt{ color:var(--red); }
+
+/* persistent watermark (scenes 2-5) */
+.wm{ position:absolute; top:3.4vh; left:3vw; z-index:40; font-weight:900; font-size:3vmin; letter-spacing:.02em; }
+
+/* ---------- swipe transitions ---------- */
+.swipe{
+  position:absolute; top:-15%; bottom:-15%; left:-20vw; width:140vw; z-index:50;
+  background:var(--c);
+}
+.swipe::before,.swipe::after{ content:""; position:absolute; top:0; bottom:0; width:7vw; background:var(--c2); }
+.swipe::before{ left:-9vw; }
+.swipe::after{ right:-9vw; }
+
+/* ---------- S1 opening ---------- */
+.s-open{ background:radial-gradient(ellipse at 50% 45%, #1c2c56 0%, var(--navy) 58%, #050a16 100%); color:#fff; }
+.open-center{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2.2vmin; }
+.flag{ font-size:13vmin; line-height:1; }
+.logo-big{ font-weight:900; font-size:17vmin; line-height:1; letter-spacing:.02em; white-space:nowrap; }
+.logo-big .j{ color:#fff; } .logo-big .h{ color:var(--red2); }
+.logo-line{ width:62vmin; height:1.5vmin; background:var(--yellow); border-radius:1vmin; transform-origin:left; margin-bottom:1vmin; }
+.open-sub{ font-size:4vmin; font-weight:700; color:rgba(255,255,255,.88); margin-top:.6vmin; }
+
+/* ---------- S2 hook ---------- */
+.s-hook{ background:radial-gradient(circle at 88% 8%, rgba(211,47,47,.10), transparent 40%), var(--bg); }
+.dots{
+  position:absolute; left:-5vmin; bottom:-5vmin; width:60vmin; height:45vmin;
+  background-image:radial-gradient(rgba(211,47,47,.22) 22%, transparent 24%);
+  background-size:3.4vmin 3.4vmin;
+  -webkit-mask:radial-gradient(ellipse at 0% 100%, #000 10%, transparent 70%);
+          mask:radial-gradient(ellipse at 0% 100%, #000 10%, transparent 70%);
+}
+.hook{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding-top:4vh; }
+.hook1{ font-size:7vmin; font-weight:900; color:var(--ink); margin-bottom:1.5vmin; white-space:nowrap; }
+.hook-row{ display:flex; align-items:baseline; justify-content:center; }
+.hook2{ position:relative; display:inline-block; }
+.hook2-t{ display:inline-block; font-size:16vmin; font-weight:900; color:var(--red); line-height:1.2; position:relative; z-index:1; white-space:nowrap; }
+.hl-bar{ position:absolute; left:3%; right:3%; bottom:10%; height:30%; background:var(--yellow); transform-origin:left; z-index:0; border-radius:1vmin; }
+.hook3{ display:inline-block; font-size:10vmin; font-weight:900; white-space:nowrap; }
+.badge-pos{ position:absolute; right:8vw; top:8vh; transform:rotate(12deg); }
+.badge{ width:22vmin; height:22vmin; border-radius:50%; background:var(--red); color:#fff; display:flex; align-items:center; justify-content:center; text-align:center; font-weight:900; font-size:3.2vmin; line-height:1.35; box-shadow:0 1.5vmin 4vmin rgba(211,47,47,.35); }
+
+/* ---------- S3 features ---------- */
+.s-feat{ background:radial-gradient(circle at 92% 12%, rgba(211,47,47,.08), transparent 35%), var(--bg); }
+.feat-head{ position:absolute; top:7vh; left:0; right:0; text-align:center; font-size:4vmin; font-weight:700; color:var(--muted); }
+.feat-head b{ color:var(--red); font-weight:900; }
+.feat{ position:absolute; inset:0; }
+.bignum{ position:absolute; right:3vw; bottom:-8vmin; font-size:50vmin; font-weight:900; line-height:1; color:transparent; -webkit-text-stroke:.45vmin rgba(211,47,47,.2); }
+.feat-inner{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; gap:6vw; padding-top:5vh; }
+.ficon-wrap{ flex:none; }
+.ficon{ width:36vmin; height:36vmin; background:var(--yellow); border:.6vmin solid var(--ink); border-radius:5vmin; display:flex; align-items:center; justify-content:center; font-size:19vmin; transform:rotate(-6deg); box-shadow:2vmin 2vmin 0 var(--ink); }
+.ftext{ width:50vw; }
+.fnum{ font-weight:900; color:var(--red); font-size:3.6vmin; letter-spacing:.16em; }
+.ftitle{ font-size:9.5vmin; font-weight:900; line-height:1.25; margin:1vmin 0 2.6vmin; }
+.fdesc{ font-size:3.7vmin; font-weight:500; color:#444; line-height:1.75; }
+
+/* ---------- S4 flow ---------- */
+.s-flow{ background:linear-gradient(180deg,#fbeef0,#fdf7f5); }
+.flow-head{ position:absolute; top:9vh; left:0; right:0; text-align:center; }
+.flow-en{ font-size:9vmin; font-weight:900; letter-spacing:.02em; line-height:1.1; white-space:nowrap; }
+.flow-sub{ font-size:3.6vmin; font-weight:700; color:var(--muted); margin-top:1vmin; }
+.tl{ position:absolute; left:4vw; right:4vw; top:40vh; display:grid; grid-template-columns:repeat(6,1fr); }
+.tl-line{ position:absolute; left:6%; right:6%; top:calc(var(--timeH) + var(--dot) / 2 - .4vmin); height:.8vmin; background:var(--ink); transform-origin:left; --g0:scaleX(0); }
+.tl-item{ display:flex; flex-direction:column; align-items:center; text-align:center; position:relative; }
+.tl-time{ height:var(--timeH); display:flex; align-items:flex-start; }
+.tl-time span{ display:inline-block; background:var(--yellow); border:.45vmin solid var(--ink); border-radius:1.2vmin; padding:.4vmin 1.8vmin; font-weight:900; font-size:3.6vmin; line-height:1.3; }
+.tl-dot{ width:var(--dot); height:var(--dot); border-radius:50%; background:var(--red); display:flex; align-items:center; justify-content:center; font-size:5vmin; box-shadow:0 0 0 1.2vmin #fcf1f1; position:relative; z-index:1; flex:none; }
+.tl-title{ margin-top:3.4vmin; background:#fff; border:.45vmin solid var(--ink); border-radius:1.6vmin; padding:1.8vmin 1.2vmin; font-weight:900; font-size:3vmin; line-height:1.35; width:88%; position:relative; }
+.tl-title .n{ position:absolute; top:-2vmin; right:-2vmin; width:4.6vmin; height:4.6vmin; border-radius:50%; background:var(--cyan); color:#fff; font-size:2.5vmin; display:flex; align-items:center; justify-content:center; }
+.sticker-pos{ position:absolute; right:6vw; top:9vh; transform:rotate(8deg); }
+.sticker{ background:var(--red); color:#fff; font-weight:900; font-size:3.4vmin; line-height:1.35; padding:2vmin 3vmin; border-radius:2vmin; border:.5vmin solid var(--ink); box-shadow:1vmin 1vmin 0 var(--ink); text-align:center; }
+
+/* ---------- S5 voice ---------- */
+.s-voice{ background:var(--cream); }
+.s-voice::before{ content:""; position:absolute; inset:0; background-image:radial-gradient(rgba(0,0,0,.05) 12%, transparent 14%); background-size:4vmin 4vmin; }
+.voice-head{ position:absolute; top:8vh; left:0; right:0; text-align:center; }
+.voice-title{ font-size:8vmin; font-weight:900; margin-top:1.4vmin; line-height:1.2; }
+.voices{ position:absolute; left:5vw; right:5vw; top:39vh; display:grid; grid-template-columns:repeat(3,1fr); gap:3vw; }
+.vcard{ background:#fff; border:.45vmin solid var(--ink); border-radius:3vmin; padding:5vmin 3.4vmin 3vmin; box-shadow:1.2vmin 1.2vmin 0 var(--ink); position:relative; display:flex; flex-direction:column; }
+.vcard .q{ position:absolute; top:-4.6vmin; left:3vmin; font-size:13vmin; color:var(--red); font-weight:900; line-height:1; }
+.vcard p{ font-size:3.4vmin; font-weight:700; line-height:1.65; flex:1; }
+.vcard em{ font-style:normal; background:linear-gradient(transparent 58%, var(--yellow) 58%); }
+.who{ display:flex; align-items:center; gap:1.8vmin; margin-top:2.4vmin; padding-top:2.2vmin; border-top:.3vmin dashed #d9d9d4; }
+.who b{ display:block; font-size:2.8vmin; font-weight:900; line-height:1.3; }
+.who small{ display:block; font-size:2.2vmin; font-weight:500; color:#666; line-height:1.4; }
+.av{ width:6.4vmin; height:6.4vmin; border-radius:50%; background:var(--c); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:3.2vmin; flex:none; }
+
+/* ---------- S6 CTA ---------- */
+.s-cta{ background:linear-gradient(180deg,var(--navy),var(--navy2)); color:#fff; }
+.cta-wrap{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; gap:5vw; padding:0 6vw 4vh; }
+.cta-left{ width:44vw; }
+.cta-left h2{ font-size:8.6vmin; font-weight:900; line-height:1.35; margin:3vmin 0 2.6vmin; }
+.cta-left .l1{ display:inline-block; white-space:nowrap; }
+.cta-left .l2{ display:inline-block; color:var(--yellow); font-size:10.6vmin; white-space:nowrap; }
+.cta-left p{ font-size:3.2vmin; color:rgba(255,255,255,.8); font-weight:500; line-height:1.75; }
+.cta-card{ width:38vw; background:#fff; color:var(--ink); border-radius:3.5vmin; padding:4.6vmin 4vmin 4.2vmin; box-shadow:0 3vmin 7vmin rgba(0,0,0,.45); text-align:center; }
+.cc-title{ color:var(--red); font-weight:900; font-size:5vmin; line-height:1.3; margin-bottom:2.2vmin; }
+.cta-card ul{ list-style:none; display:inline-block; text-align:left; margin-bottom:3vmin; }
+.cta-card li{ font-size:3.3vmin; font-weight:700; margin-bottom:.8vmin; display:flex; gap:1.2vmin; }
+.cta-card li::before{ content:"✓"; color:var(--red); font-weight:900; }
+.qr-row{ display:flex; align-items:center; gap:3.2vmin; justify-content:center; }
+.qr{ width:23vmin; height:23vmin; border-radius:1.4vmin; border:.4vmin solid #e6e6e2; image-rendering:pixelated; flex:none; }
+.qr-txt{ text-align:center; }
+.scan{ font-size:2.6vmin; font-weight:700; color:#444; margin-bottom:1.8vmin; }
+.btn-g{ display:inline-block; background:var(--green); color:#fff; font-weight:900; font-size:3.4vmin; padding:2vmin 3.4vmin; border-radius:99px; box-shadow:0 .8vmin 0 #0a8f46; white-space:nowrap; }
+.url{ font-size:2.2vmin; color:#777; margin-top:2.2vmin; font-weight:500; letter-spacing:.01em; }
+.deadline{ display:inline-block; margin-top:1vmin; font-size:2.6vmin; font-weight:900; color:var(--ink); background:var(--yellow); padding:.6vmin 2.4vmin; border-radius:99px; }
+.cta-logo{ position:absolute; bottom:5vh; left:0; right:0; text-align:center; font-weight:900; font-size:4.4vmin; letter-spacing:.02em; }
+.cta-logo .j{ color:#fff; } .cta-logo .h{ color:var(--red2); }
+
+/* ---------- portrait (9:16) overrides ---------- */
+@media (orientation:portrait){
+  .logo-big{ font-size:15vmin; }
+  .hook1{ font-size:7.4vmin; margin-bottom:2.5vmin; }
+  .hook-row{ flex-direction:column; align-items:center; }
+  .hook2-t{ font-size:13.5vmin; }
+  .hook3{ font-size:11vmin; margin-top:1vmin; }
+  .badge-pos{ top:10vh; right:7vw; }
+  .badge{ width:26vmin; height:26vmin; font-size:3.8vmin; }
+  .dots{ width:80vmin; height:60vmin; }
+
+  .feat-head{ top:12vh; font-size:4.6vmin; }
+  .feat-inner{ flex-direction:column; gap:6vh; text-align:center; padding-top:10vh; }
+  .ficon{ width:42vmin; height:42vmin; font-size:22vmin; }
+  .ftext{ width:88vw; }
+  .ftitle{ font-size:10.5vmin; }
+  .fdesc{ font-size:4.3vmin; }
+  .bignum{ font-size:62vmin; right:-3vw; bottom:-6vmin; }
+
+  .flow-head{ top:9vh; }
+  .flow-en{ font-size:11vmin; }
+  .flow-sub{ font-size:4.4vmin; }
+  .tl{ left:9vw; right:7vw; top:27vh; display:flex; flex-direction:column; gap:2.4vh; }
+  .tl-line{ left:calc(var(--dot) / 2 - .4vmin); right:auto; top:calc(var(--dot) / 2); width:.8vmin; height:calc(5 * (var(--dot) + 2.4vh)); transform-origin:top; --g0:scaleY(0); }
+  .tl-item{ flex-direction:row; align-items:center; text-align:left; gap:3.6vmin; }
+  .tl-dot{ order:0; }
+  .tl-time{ order:1; height:auto; align-items:center; }
+  .tl-time span{ font-size:4.4vmin; }
+  .tl-title{ order:2; margin-top:0; width:auto; flex:1; font-size:4.6vmin; padding:2vmin 2.6vmin; }
+  .tl-title .lb{ display:none; }
+  .sticker-pos{ top:auto; bottom:7vh; right:7vw; }
+  .sticker{ font-size:4.6vmin; }
+
+  .voice-head{ top:9vh; }
+  .voice-title{ font-size:10vmin; }
+  .voices{ top:27vh; left:7vw; right:7vw; grid-template-columns:1fr; gap:4.6vh; }
+  .vcard{ padding:5.6vmin 4.4vmin 3.4vmin; }
+  .vcard p{ font-size:4.4vmin; }
+  .who b{ font-size:3.4vmin; } .who small{ font-size:2.9vmin; }
+  .av{ width:8vmin; height:8vmin; font-size:4vmin; }
+
+  .cta-wrap{ flex-direction:column; gap:5vh; padding:0 7vw 8vh; }
+  .cta-left{ width:auto; text-align:center; }
+  .cta-left h2{ font-size:10vmin; }
+  .cta-left .l2{ font-size:12.5vmin; }
+  .cta-left p{ font-size:4vmin; }
+  .cta-card{ width:86vw; padding:6vmin 5vmin 5.4vmin; }
+  .cc-title{ font-size:6.4vmin; }
+  .cta-card li{ font-size:4.4vmin; }
+  .qr{ width:32vmin; height:32vmin; }
+  .scan{ font-size:3.4vmin; }
+  .btn-g{ font-size:4.4vmin; }
+  .url{ font-size:2.9vmin; }
+  .deadline{ font-size:3.4vmin; }
+  .cta-logo{ font-size:5.6vmin; bottom:5vh; }
+  .wm{ font-size:3.6vmin; top:3vh; left:5vw; }
+}
+</style>
+</head>
+<body>
+
+<!-- ================= S1 OPENING (0 - 4.05) ================= -->
+<section class="scene s-open" data-start="0" data-end="4.1">
+  <div class="rays" data-a="spin 40s linear 0s infinite both"></div>
+  <div class="confetti" data-confetti="60" data-t0="0" data-seed="11"></div>
+  <div class="open-center">
+    <div class="flag emoji" data-a="drop .7s $s .2s both">🚩</div>
+    <div class="logo-big"><span class="j" data-split="pop .45s .6s .07s $s">JOB</span><span class="ch"> </span><span class="h" data-split="pop .45s .85s .07s $s">HUNT</span></div>
+    <div class="logo-line" data-a="grow .5s $o 1.35s both"></div>
+    <div class="pill y" data-a="pop .45s $s 1.8s both">28卒向け 就活イベント</div>
+    <div class="open-sub" data-a="up .6s $o 2.3s both">フェスのように熱量の高い、就活イベント。</div>
+  </div>
+</section>
+
+<!-- ================= S2 HOOK (3.6 - 8.2) ================= -->
+<section class="scene s-hook" data-start="3.6" data-end="8.3" data-a="circleIn .45s $io 3.6s both">
+  <div class="dots"></div>
+  <div class="hook">
+    <div class="hook1" data-split="up .4s 4.05s .035s $o">会社の“大きさ”じゃなく、</div>
+    <div class="hook-row">
+      <div class="hook2"><span class="hl-bar" data-a="grow .4s $o 5.55s both"></span><span class="hook2-t" data-a="punch .55s $s 5.1s both">「誰と働くか」</span></div>
+      <div class="hook3" data-a="slideL .45s $o 6.1s both">で選ぶ。</div>
+    </div>
+  </div>
+  <div class="badge-pos"><div data-a="pop .5s $s 6.7s both"><div class="badge" data-a="wobble .9s $io 7.2s infinite alternate none">会場の熱気を<br>体感せよ！</div></div></div>
+</section>
+
+<!-- ================= S3 FEATURES (7.9 - 17) ================= -->
+<section class="scene s-feat" data-start="7.9" data-end="17.0">
+  <div class="feat-head" data-a="up .5s $o 8.05s both">JOB HUNT の <b>3つの特徴</b></div>
+
+  <div class="feat" data-start="7.9" data-end="11.0">
+    <div class="bignum" data-a="slideL .8s $o 8.0s both; outL .3s $i 10.7s forwards">01</div>
+    <div class="feat-inner">
+      <div class="ficon-wrap" data-a="pop .5s $s 8.2s both; outL .3s $i 10.7s forwards"><div class="ficon emoji">👥</div></div>
+      <div class="ftext" data-a="outL .3s $i 10.72s forwards">
+        <div class="fnum" data-a="slideL .45s $o 8.35s both">POINT 01</div>
+        <div class="ftitle" data-a="slideL .5s $o 8.45s both">社長・役員と<br>直接話せる</div>
+        <div class="fdesc" data-a="up .5s $o 8.8s both">人事担当だけでなく、会社のトップと直接会話。<br>ビジョンと熱量を、肌で感じよう。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feat" data-start="11.0" data-end="14.0">
+    <div class="bignum" data-a="slideL .8s $o 11.0s both; outL .3s $i 13.7s forwards">02</div>
+    <div class="feat-inner">
+      <div class="ficon-wrap" data-a="pop .5s $s 11.2s both; outL .3s $i 13.7s forwards"><div class="ficon emoji">💬</div></div>
+      <div class="ftext" data-a="outL .3s $i 13.72s forwards">
+        <div class="fnum" data-a="slideL .45s $o 11.35s both">POINT 02</div>
+        <div class="ftitle" data-a="slideL .5s $o 11.45s both">NGなしの<br>フリートーク</div>
+        <div class="fdesc" data-a="up .5s $o 11.8s both">「残業は？」「離職率は？」<br>説明会では聞きにくいことも、本音でOK。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="feat" data-start="14.0" data-end="17.0">
+    <div class="bignum" data-a="slideL .8s $o 14.0s both">03</div>
+    <div class="feat-inner">
+      <div class="ficon-wrap" data-a="pop .5s $s 14.2s both"><div class="ficon emoji">👕</div></div>
+      <div class="ftext">
+        <div class="fnum" data-a="slideL .45s $o 14.35s both">POINT 03</div>
+        <div class="ftitle" data-a="slideL .5s $o 14.45s both">私服参加＆<br>履歴書不要</div>
+        <div class="fdesc" data-a="up .5s $o 14.8s both">リクルートスーツという「鎧」は脱いで。<br>必要なのは、好奇心だけ。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= S4 EVENT FLOW (16.9 - 23.2) ================= -->
+<section class="scene s-flow" data-start="16.9" data-end="23.3">
+  <div class="flow-head">
+    <div class="flow-en" data-split="up .4s 17.1s .04s $o">EVENT FLOW</div>
+    <div class="flow-sub" data-a="up .5s $o 17.4s both">自由なスタイルで楽しもう</div>
+  </div>
+  <div class="tl">
+    <div class="tl-line" data-a="grow 2.7s $io 17.55s both"></div>
+    <div class="tl-item">
+      <div class="tl-time" data-a="up .4s $o 17.65s both"><span>12:30</span></div>
+      <div class="tl-dot emoji" data-a="pop .45s $s 17.6s both">🚪</div>
+      <div class="tl-title" data-a="up .45s $o 17.7s both"><span class="n">1</span>受付開始</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-time" data-a="up .4s $o 18.15s both"><span>13:00</span></div>
+      <div class="tl-dot emoji" data-a="pop .45s $s 18.1s both">🎤</div>
+      <div class="tl-title" data-a="up .45s $o 18.2s both"><span class="n">2</span>オープニング</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-time" data-a="up .4s $o 18.65s both"><span>13:15</span></div>
+      <div class="tl-dot emoji" data-a="pop .45s $s 18.6s both">⚡</div>
+      <div class="tl-title" data-a="up .45s $o 18.7s both"><span class="n">3</span>企業プレゼン</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-time" data-a="up .4s $o 19.15s both"><span>13:45</span></div>
+      <div class="tl-dot emoji" data-a="pop .45s $s 19.1s both">👥</div>
+      <div class="tl-title" data-a="up .45s $o 19.2s both"><span class="n">4</span>グループ<br class="lb">ワーク</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-time" data-a="up .4s $o 19.65s both"><span>16:30</span></div>
+      <div class="tl-dot emoji" data-a="pop .45s $s 19.6s both">☕</div>
+      <div class="tl-title" data-a="up .45s $o 19.7s both"><span class="n">5</span>個別面談<br class="lb">＆座談会</div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-time" data-a="up .4s $o 20.15s both"><span>17:00</span></div>
+      <div class="tl-dot emoji" data-a="pop .45s $s 20.1s both">🚶</div>
+      <div class="tl-title" data-a="up .45s $o 20.2s both"><span class="n">6</span>人事×学生<br class="lb">交流会</div>
+    </div>
+  </div>
+  <div class="sticker-pos"><div data-a="pop .5s $s 20.6s both"><div class="sticker" data-a="wobble 1s $io 21.1s infinite alternate none">途中参加・<br>退出OK！</div></div></div>
+</section>
+
+<!-- ================= S5 REAL VOICE (22.9 - 28.05) ================= -->
+<section class="scene s-voice" data-start="22.9" data-end="28.1">
+  <div class="voice-head">
+    <span class="pill r" data-a="pop .45s $s 23.0s both">REAL VOICE</span>
+    <div class="voice-title" data-a="up .5s $o 23.15s both">参加者の声</div>
+  </div>
+  <div class="voices">
+    <div class="vcard" data-a="pop .5s $s 23.5s both">
+      <div class="q">“</div>
+      <p>大規模な合説とは全然違って、本当に<em>「対話」</em>ができる感覚でした。</p>
+      <div class="who"><span class="av" style="--c:#26c6da">T</span><div><b>Tさん</b><small>早稲田大学 経済学部 3年</small></div></div>
+    </div>
+    <div class="vcard" data-a="pop .5s $s 24.4s both">
+      <div class="q">“</div>
+      <p>フィードバックが丁寧で、<em>自分の強み・弱み</em>がよく分かりました。</p>
+      <div class="who"><span class="av" style="--c:#f39c12">S</span><div><b>Sさん</b><small>慶應義塾大学 商学部 4年</small></div></div>
+    </div>
+    <div class="vcard" data-a="pop .5s $s 25.3s both">
+      <div class="q">“</div>
+      <p>CTOの方と直接技術の話ができて、<em>内定にも繋がりました！</em></p>
+      <div class="who"><span class="av" style="--c:#8e44ad">Y</span><div><b>Yさん</b><small>東京大学 工学部 3年</small></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= S6 CTA (27.6 - end) ================= -->
+<section class="scene s-cta" data-start="27.6" data-end="999" data-a="circleIn .45s $io 27.6s both">
+  <div class="rays" data-a="spin 40s linear 0s infinite both"></div>
+  <div class="confetti" data-confetti="50" data-t0="28" data-seed="23"></div>
+  <div class="cta-wrap">
+    <div class="cta-left">
+      <span class="pill y" data-a="pop .45s $s 28.1s both">FINAL CALL</span>
+      <h2><span class="l1" data-split="up .4s 28.4s .045s $o">あなたの働くが</span><br><span class="l2" data-a="punch .55s $s 29.0s both">ここから変わる</span></h2>
+      <p data-a="up .5s $o 29.6s both">準備は不要。必要なのは好奇心だけ。</p>
+      <span class="deadline" data-a="up .5s $o 29.9s both">定員になり次第締め切り</span>
+    </div>
+    <div class="cta-card" data-a="slideUp .6s $o 30.3s both">
+      <div class="cc-title">優先エントリー受付中</div>
+      <ul>
+        <li data-a="slideL .4s $o 30.8s both">氏名入力不要！30秒で完結</li>
+        <li data-a="slideL .4s $o 31.1s both">限定求人や選考リストが届く</li>
+      </ul>
+      <div class="qr-row">
+        <img class="qr" src="qr.png" alt="" data-a="pop .5s $s 31.5s both">
+        <div class="qr-txt" data-a="up .5s $o 31.7s both">
+          <div class="scan">QRコードを読み取って</div>
+          <div data-a="pulse .5s $io 32.5s infinite alternate none"><span class="btn-g">応募はこちらから →</span></div>
+          <div class="url">forms.gle/4QCdbr3ucUkjWc278</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="cta-logo" data-a="up .5s $o 32.3s both"><span class="emoji">🚩</span> <span class="j">JOB</span> <span class="h">HUNT</span></div>
+</section>
+
+<!-- persistent small logo during the light scenes -->
+<div class="wm" data-start="4.05" data-end="27.9" data-a="fadeIn .4s linear 4.1s both"><span class="emoji">🚩</span> <span class="job">JOB</span> <span class="hunt">HUNT</span></div>
+
+<!-- ================= swipe transitions ================= -->
+<div class="swipe" style="--c:var(--yellow);--c2:var(--red)" data-start="7.5" data-end="8.4" data-a="swipeIn .3s $io 7.6s both; swipeOut .38s $o 7.9s forwards"></div>
+<div class="swipe" style="--c:var(--red);--c2:var(--navy)" data-start="16.5" data-end="17.4" data-a="swipeIn .3s $io 16.6s both; swipeOut .38s $o 16.9s forwards"></div>
+<div class="swipe" style="--c:var(--navy);--c2:var(--yellow)" data-start="22.5" data-end="23.4" data-a="swipeIn .3s $io 22.6s both; swipeOut .38s $o 22.9s forwards"></div>
+
+<script>
+(() => {
+  const EASE = {
+    '$o':'cubic-bezier(.16,1,.3,1)', '$b':'cubic-bezier(.34,1.56,.64,1)',
+    '$i':'cubic-bezier(.7,0,.84,0)', '$io':'cubic-bezier(.65,0,.35,1)', '$s':'cubic-bezier(.4,0,.2,1)'
+  };
+  const ease = s => s.replace(/\$io|\$o|\$b|\$i|\$s/g, m => EASE[m]);
+
+  // per-character split
+  document.querySelectorAll('[data-split]').forEach(el => {
+    const [name, dur, start, step, e = '$o'] = el.dataset.split.trim().split(/\s+/);
+    const text = el.textContent;
+    el.textContent = '';
+    [...text].forEach((c, i) => {
+      const s = document.createElement('span');
+      s.className = 'ch';
+      s.textContent = c;
+      const d = (parseFloat(start) + i * parseFloat(step)).toFixed(3);
+      s.style.animation = ease(`${name} ${dur} ${e} ${d}s both`);
+      el.appendChild(s);
+    });
+  });
+
+  // animation lists
+  document.querySelectorAll('[data-a]').forEach(el => {
+    el.style.animation = el.dataset.a.split(';').map(x => ease(x.trim())).join(', ');
+  });
+
+  // deterministic confetti
+  function rng(seed){ return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  const COLORS = ['#ffd54a','#ff4a4a','#26c6da','#ffffff','#0fbf5f','#ff8a65'];
+  document.querySelectorAll('[data-confetti]').forEach(box => {
+    const n = +box.dataset.confetti, t0 = +box.dataset.t0, r = rng(+box.dataset.seed);
+    for (let i = 0; i < n; i++){
+      const p = document.createElement('i');
+      const w = 0.8 + r() * 1.4, h = w * (0.5 + r() * 1.6);
+      const dur = 3 + r() * 3;
+      const delay = t0 - r() * dur;          // already mid-fall when the scene starts
+      p.style.left = (r() * 100).toFixed(2) + '%';
+      p.style.width = w.toFixed(2) + 'vmin';
+      p.style.height = h.toFixed(2) + 'vmin';
+      p.style.background = COLORS[Math.floor(r() * COLORS.length)];
+      p.style.opacity = (0.55 + r() * 0.45).toFixed(2);
+      if (r() < 0.3) p.style.borderRadius = '50%';
+      p.style.setProperty('--dx', ((r() - 0.5) * 30).toFixed(1) + 'vmin');
+      p.style.setProperty('--rot', ((r() - 0.5) * 1080).toFixed(0) + 'deg');
+      p.style.setProperty('--flip', ((r() - 0.5) * 1440).toFixed(0) + 'deg');
+      p.style.animation = `fall ${dur.toFixed(2)}s linear ${delay.toFixed(2)}s infinite both`;
+      box.appendChild(p);
+    }
+  });
+
+  const windows = [...document.querySelectorAll('[data-start]')];
+  window.seek = (t) => {
+    windows.forEach(el => {
+      const s = +el.dataset.start, e = +(el.dataset.end ?? 1e9);
+      el.style.visibility = (t >= s && t < e) ? '' : 'hidden';
+    });
+    document.getAnimations().forEach(a => { a.pause(); a.currentTime = t * 1000; });
+  };
+  window.seek(0);
+})();
+</script>
+</body>
+</html>
