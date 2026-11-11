@@ -1,0 +1,2 @@
+#!/bin/bash
+ffmpeg -loglevel error -y -i "$1" -filter_complex "[0:a]aresample=44100,asplit=3[a][b][c];[a]rubberband=pitch=0.80:formant=preserved,volume=1.0[m];[b]rubberband=pitch=0.40:formant=shifted,lowpass=f=1200,volume=0.32[l];[c]rubberband=pitch=1.2:formant=preserved,highpass=f=2500,volume=0.10[h];[m][l][h]amix=inputs=3:normalize=0,aecho=0.8:0.5:70|160:0.18|0.10,apad=pad_dur=0.6" -ar 44100 -ac 1 "$2"
